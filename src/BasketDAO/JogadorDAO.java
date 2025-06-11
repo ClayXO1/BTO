@@ -18,7 +18,7 @@ public class JogadorDAO {
             int idade = scan.nextInt();
 
             System.out.println("Selecione o ID do time:");
-            listarOpcoes(conn, "time"); 
+            listarOpcoes(conn, "time");
             int timeId = scan.nextInt();
 
             System.out.println("Selecione o ID da nacionalidade:");
@@ -26,16 +26,12 @@ public class JogadorDAO {
             int nacionalidadeId = scan.nextInt();
 
             System.out.println("Selecione o ID da posição:");
-            listarOpcoes(conn, "posicao"); 
+            listarOpcoes(conn, "posicao");
             int posicaoId = scan.nextInt();
 
+            
 
-            System.out.println("Selecione o ID do tecnico:");
-            listarOpcoes(conn, "tecnico");
-            int tecnicoId = scan.nextInt();
-            scan.nextLine();
-
-            String sql = "INSERT INTO jogador (nome, idade, time_id, nacionalidade_id, posicao_id, tecnico_id) VALUES (?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO jogador (nome, idade, time_id, nacionalidade_id, posicao_id, tecnico_id = time.tecnico_id) VALUES (?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, nome);
@@ -43,7 +39,6 @@ public class JogadorDAO {
                 ps.setInt(3, timeId);
                 ps.setInt(4, nacionalidadeId);
                 ps.setInt(5, posicaoId);
-                ps.setInt(6, tecnicoId);
 
                 int rowsAffected = ps.executeUpdate();
                 if (rowsAffected > 0) {
@@ -57,120 +52,106 @@ public class JogadorDAO {
         }
     }
 
-
     public static void alterarJogador(Connection conn, Scanner scan) {
-    try {
-        mostrarJogadores(conn);
-        System.out.println("Digite o ID do jogador que deseja alterar:");
-        int jogadorId = scan.nextInt();
-        scan.nextLine();
+        try {
+            mostrarJogadores(conn);
+            System.out.println("Digite o ID do jogador que deseja alterar:");
+            int jogadorId = scan.nextInt();
+            scan.nextLine();
 
-        System.out.println("Selecione a informação que deseja alterar:");
-        System.out.println("1. Nome");
-        System.out.println("2. Idade");
-        System.out.println("3. Time");
-        System.out.println("4. Nacionalidade");
-        System.out.println("5. Posição");
-        System.out.println("6. Técnico");
-        System.out.println("7. Voltar ao menu anterior");
-        int entrada = scan.nextInt();
-        scan.nextLine();
+            System.out.println("Selecione a informação que deseja alterar:");
+            System.out.println("1. Nome");
+            System.out.println("2. Idade");
+            System.out.println("3. Time");
+            System.out.println("4. Nacionalidade");
+            System.out.println("5. Posição");
+            System.out.println("6. Voltar ao menu anterior");
+            int entrada = scan.nextInt();
+            scan.nextLine();
 
-        String sql = null;
-        
-        switch (entrada) {
-            case 1:
-                System.out.print("Digite o novo nome: ");
-                String novoNome = scan.nextLine();
-                sql = "UPDATE jogador SET nome = ? WHERE id = ?";
-                try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                    ps.setString(1, novoNome);
-                    ps.setInt(2, jogadorId);
-                    executarAtualizacao(ps);
-                } 
-                break;
+            String sql = null;
 
-            case 2:
-                System.out.print("Digite a nova idade: ");
-                int novaIdade = scan.nextInt();
-                sql = "UPDATE jogador SET idade = ? WHERE id = ?";
-                try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                    ps.setInt(1, novaIdade);
-                    ps.setInt(2, jogadorId);
-                    executarAtualizacao(ps);
-                } 
-                break;
+            switch (entrada) {
+                case 1:
+                    System.out.print("Digite o novo nome: ");
+                    String novoNome = scan.nextLine();
+                    sql = "UPDATE jogador SET nome = ? WHERE id = ?";
+                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                        ps.setString(1, novoNome);
+                        ps.setInt(2, jogadorId);
+                        executarAtualizacao(ps);
+                    }
+                    break;
 
-            case 3:
-                System.out.println("Selecione o ID do novo time: ");
-                listarOpcoes(conn, "time");
-                int novoTimeId = scan.nextInt();
-                sql = "UPDATE jogador SET time_id = ? WHERE id = ?";
-                try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                    ps.setInt(1, novoTimeId);
-                    ps.setInt(2, jogadorId);
-                    executarAtualizacao(ps);
-                }  
-                break;
+                case 2:
+                    System.out.print("Digite a nova idade: ");
+                    int novaIdade = scan.nextInt();
+                    sql = "UPDATE jogador SET idade = ? WHERE id = ?";
+                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                        ps.setInt(1, novaIdade);
+                        ps.setInt(2, jogadorId);
+                        executarAtualizacao(ps);
+                    }
+                    break;
 
-            case 4:
-                System.out.println("Selecione o ID da nova nacionalidade: ");
-                listarOpcoes(conn, "nacionalidade");
-                int novaNacionalidadeId = scan.nextInt();
-                scan.nextLine();
-                sql = "UPDATE jogador SET nacionalidade_id = ? WHERE id = ?";
-                try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                    ps.setInt(1, novaNacionalidadeId);
-                    ps.setInt(2, jogadorId);
-                    executarAtualizacao(ps);
-                }
-                break;
+                case 3:
+                    System.out.println("Selecione o ID do novo time: ");
+                    listarOpcoes(conn, "time");
+                    int novoTimeId = scan.nextInt();
+                    sql = "UPDATE jogador SET time_id = ? WHERE id = ?";
+                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                        ps.setInt(1, novoTimeId);
+                        ps.setInt(2, jogadorId);
+                        executarAtualizacao(ps);
+                    }
+                    break;
 
-            case 5:
-                System.out.println("Selecione o ID da nova posição: ");
-                listarOpcoes(conn, "posicao");
-                int novaPosicaoId = scan.nextInt();
-                scan.nextLine();
-                sql = "UPDATE jogador SET posicao_id = ? WHERE id = ?";
-                try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                    ps.setInt(1, novaPosicaoId);
-                    ps.setInt(2, jogadorId);
-                    executarAtualizacao(ps);
-                }
-                break;
-            
-            case 6:
-                System.out.println("Selecione o ID do novo técnico: ");
-                listarOpcoes(conn, "tecnico");
-                int novoTecnicoId = scan.nextInt();
-                sql = "UPDATE jogador SET tecnico_id = ? WHERE id = ?";
-                try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                    ps.setInt(1, novoTecnicoId);
-                    ps.setInt(2, jogadorId);
-                    executarAtualizacao(ps);
-                }
-                break;
-            case 7:
-                return;
-            default:
-                System.out.println("Opção inválida.");
+                case 4:
+                    System.out.println("Selecione o ID da nova nacionalidade: ");
+                    listarOpcoes(conn, "nacionalidade");
+                    int novaNacionalidadeId = scan.nextInt();
+                    scan.nextLine();
+                    sql = "UPDATE jogador SET nacionalidade_id = ? WHERE id = ?";
+                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                        ps.setInt(1, novaNacionalidadeId);
+                        ps.setInt(2, jogadorId);
+                        executarAtualizacao(ps);
+                    }
+                    break;
+
+                case 5:
+                    System.out.println("Selecione o ID da nova posição: ");
+                    listarOpcoes(conn, "posicao");
+                    int novaPosicaoId = scan.nextInt();
+                    scan.nextLine();
+                    sql = "UPDATE jogador SET posicao_id = ? WHERE id = ?";
+                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                        ps.setInt(1, novaPosicaoId);
+                        ps.setInt(2, jogadorId);
+                        executarAtualizacao(ps);
+                    }
+                    break;
+
+                case 6:
+                    return;
+                default:
+                    System.out.println("Opção inválida.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao alterar jogador: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
         }
-    } catch (SQLException e) {
-        System.out.println("Erro ao alterar jogador: " + e.getMessage());
-    } catch (IllegalArgumentException e) {
-        System.out.println(e.getMessage());
     }
-}
-
 
     public static void mostrarJogadores(Connection conn) {
-            String sql = "SELECT * FROM vw_jogadores_detalhado";
+        String sql = "SELECT * FROM vw_jogadores_detalhado";
 
-            try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
-                System.out.println("\nLista de jogadores cadastrados:");
-                System.out.println("---------------------------------------------------------------------------------------------------------------");
-                System.out.printf("%-5s %-20s %-5s %-20s %-20s %-15s %-15s\n", "ID", "Nome", "Idade", "Time", "Posição", "Nacionalidade", "Técnico");
-                System.out.println("---------------------------------------------------------------------------------------------------------------");
+        try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
+            System.out.println("\nLista de jogadores cadastrados:");
+            System.out.println("---------------------------------------------------------------------------------------------------------------");
+            System.out.printf("%-5s %-20s %-5s %-20s %-20s %-15s %-15s\n", "ID", "Nome", "Idade", "Time", "Posição", "Nacionalidade", "Técnico");
+            System.out.println("---------------------------------------------------------------------------------------------------------------");
 
             while (rs.next()) {
                 int id = rs.getInt("jogador_id");
@@ -184,11 +165,10 @@ public class JogadorDAO {
                 System.out.printf("%-5d %-20s %-5d %-20s %-20s %-15s %-15s\n", id, nome, idade, time, posicao, nacionalidade, tecnico);
             }
             System.out.println("---------------------------------------------------------------------------------------------------------------");
-            } catch (SQLException e) {
-                System.out.println("Erro ao exibir jogadores: " + e.getMessage());
-            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao exibir jogadores: " + e.getMessage());
+        }
     }
-
 
     public static void deletarJogador(Connection conn, Scanner scan) {
         mostrarJogadores(conn);
@@ -237,7 +217,6 @@ public class JogadorDAO {
         }
     }
 
-
     private static void executarAtualizacao(PreparedStatement ps) throws SQLException {
         int rowsAffected = ps.executeUpdate();
         if (rowsAffected > 0) {
@@ -246,7 +225,6 @@ public class JogadorDAO {
             System.out.println("Erro ao atualizar as informações do jogador.");
         }
     }
-
 
     private static void listarOpcoes(Connection conn, String tabela) {
         String sql = "SELECT id, nome FROM " + tabela;
@@ -260,6 +238,5 @@ public class JogadorDAO {
             System.out.println("Erro ao listar opções: " + e.getMessage());
         }
     }
-
 
 }

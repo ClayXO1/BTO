@@ -51,7 +51,7 @@ public class PosicaoDAO {
                 int id = rs.getInt("id");
                 String nome = rs.getString("nome");
 
-                System.out.println("ID: " + id + " | Nome: " + nome);
+                System.out.println("ID: " + id + " | Posição: " + nome);
             }
         } catch (SQLException e) {
             e.printStackTrace();

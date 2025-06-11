@@ -1,3 +1,4 @@
+
 import BasketDAO.JogadorDAO;
 import BasketDAO.NacionalidadeDAO;
 import BasketDAO.PosicaoDAO;
@@ -7,8 +8,6 @@ import Conexao.Conexao;
 import java.sql.Connection;
 import java.util.Scanner;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
 
     public static void main(String[] args) {
@@ -25,10 +24,10 @@ public class Main {
                 System.out.println("//                  MENU PRINCIPAL                      //");
                 System.out.println("//////////////////////////////////////////////////////////");
                 System.out.println("1. Gerenciar Jogadores");
-                System.out.println("2. Gerenciar Times");
-                System.out.println("3. Gerenciar Posições");
-                System.out.println("4. Gerenciar Nacionalidades");
-                System.out.println("5. Gerenciar Tecnicos");
+                System.out.println("2. Gerenciar Tecnicos");
+                System.out.println("3. Gerenciar Times");
+                System.out.println("4. Gerenciar Posições");
+                System.out.println("5. Gerenciar Nacionalidades");
                 System.out.println("6. Sair");
                 System.out.print("Escolha uma opção: ");
                 int entrada = scan.nextInt();
@@ -39,16 +38,16 @@ public class Main {
                         menuJogadores(conn, scan);
                         break;
                     case 2:
-                        menuTimes(conn, scan);
+                        menuTecnicos(conn, scan);
                         break;
                     case 3:
-                        menuPosicoes(conn, scan);
+                        menuTimes(conn, scan);
                         break;
                     case 4:
-                        menuNacionalidades(conn, scan);
+                        menuPosicoes(conn, scan);
                         break;
                     case 5:
-                        menuTecnicos(conn, scan);
+                        menuNacionalidades(conn, scan);
                         break;
                     case 6:
                         System.out.println("Encerrando o programa...");
@@ -68,7 +67,8 @@ public class Main {
             System.out.println("1. Cadastrar Jogador");
             System.out.println("2. Mostrar Jogadores");
             System.out.println("3. Alterar informações dos jogadores");
-            System.out.println("4. Voltar ao Menu Principal");
+            System.out.println("4. Deletar Jogador");
+            System.out.println("5. Voltar ao Menu Principal");
             System.out.print("Escolha uma opção: ");
             int entrada = scan.nextInt();
             scan.nextLine();
@@ -78,7 +78,7 @@ public class Main {
                     JogadorDAO.cadastrarJogador(conn, scan);
                     break;
                 case 2:
-                    JogadorDAO.mostrarJogadores2(conn);
+                    JogadorDAO.mostrarJogadores(conn);
                     break;
                 case 3:
                     JogadorDAO.alterarJogador(conn, scan);
@@ -93,7 +93,6 @@ public class Main {
             }
         }
     }
-
 
     private static void menuNacionalidades(Connection conn, Scanner scan) {
         while (true) {
@@ -120,13 +119,13 @@ public class Main {
         }
     }
 
-
     private static void menuTimes(Connection conn, Scanner scan) {
         while (true) {
             System.out.println("\n*** Gerenciamento de Times ***");
             System.out.println("1. Cadastrar Time");
             System.out.println("2. Mostrar Times");
-            System.out.println("3. Voltar ao Menu Principal");
+            System.out.println("3. Alterar Time");
+            System.out.println("4. Voltar ao Menu Principal");
             System.out.print("Escolha uma opção: ");
             int entrada = scan.nextInt();
             scan.nextLine();
@@ -139,13 +138,15 @@ public class Main {
                     TimeDAO.mostrarTimes(conn);
                     break;
                 case 3:
+                    TimeDAO.alterarTime(conn, scan);
+                    break;
+                    case 4:
                     return;
                 default:
                     System.out.println("Opção inválida.");
             }
         }
     }
-
 
     private static void menuPosicoes(Connection conn, Scanner scan) {
         while (true) {
@@ -171,7 +172,6 @@ public class Main {
             }
         }
     }
-
 
     private static void menuTecnicos(Connection conn, Scanner scan) {
         while (true) {
@@ -199,13 +199,11 @@ public class Main {
                     TecnicoDAO.deletarTecnico(conn, scan);
                     break;
                 case 5:
-                    return; 
+                    return;
                 default:
                     System.out.println("Opção inválida.");
             }
         }
     }
-
-
 
 }
