@@ -1,0 +1,9 @@
+{
+    "sqltools.connections": [],
+    "java.project.sourcePaths": [
+        "src"
+    ],
+    "java.project.referencedLibraries": [
+        "c:\\Users\\Admin\\Downloads\\postgresql-42.7.6.jar"
+    ]
+}
