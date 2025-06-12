@@ -46,12 +46,16 @@ public class PosicaoDAO {
         String sql = "SELECT id, nome FROM posicao";
 
         try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
-            System.out.println("\nPosições cadastradas:");
+
+            System.out.println("\nLista de Posições cadastradas:");
+            System.out.println("---------------------------------------------------------------------------------------------------------------");
+            System.out.printf("%-5s %-30s\n", "ID", "Posição");
+            System.out.println("---------------------------------------------------------------------------------------------------------------");
             while (rs.next()) {
                 int id = rs.getInt("id");
                 String nome = rs.getString("nome");
 
-                System.out.println("ID: " + id + " | Posição: " + nome);
+                System.out.printf("%-5d %-30s\n", id, nome);
             }
         } catch (SQLException e) {
             e.printStackTrace();

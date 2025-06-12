@@ -65,26 +65,21 @@ public class TimeDAO {
 
     public static void mostrarTimes(Connection conn) {
 
-        //Fazer uma view para exibir time_id, nome, cidade e tecnico_nome
-        // Exemplo de SQL para criar a view:
-        // String createViewSQL = "CREATE VIEW vw_times AS SELECT t.id AS time_id, t.nome AS time_nome, t.cidade AS time_cidade, te.nome AS tecnico_nome " +
-        //        "FROM time t JOIN tecnico te ON t.tecnico_id = te.id";
-        // try (Statement st = conn.createStatement()) {
-        //     st.executeUpdate(createViewSQL);
-        // } catch (SQLException e) {
-        //   e.printStackTrace();
-        // }
-        String sql = "SELECT id, nome, cidade, tecnico_id FROM time";
+        String sql = "SELECT * FROM vw_times";
 
         try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
-            System.out.println("\nTimes cadastrados:");
+           
+            System.out.println("\nLista de Times cadastrados:");
+            System.out.println("---------------------------------------------------------------------------------------------------------------");
+            System.out.printf("%-5s %-40s %-40s %-30s\n", "ID", "Nome", "Cidade", "Técnico");
+            System.out.println("---------------------------------------------------------------------------------------------------------------");
             while (rs.next()) {
-                int id = rs.getInt("id");
-                String nome = rs.getString("nome");
-                String cidade = rs.getString("cidade");
-                int tecnico_id = rs.getInt("tecnico_id");
+                int id = rs.getInt("time_id");
+                String nome = rs.getString("time_nome");
+                String cidade = rs.getString("time_cidade");
+                String tecnico_nome = rs.getString("tecnico_nome");
 
-                System.out.println("ID: " + id + " | Nome: " + nome + " | Cidade: " + cidade + " | Tecnico: " + tecnico_id);
+                System.out.printf("%-5d %-40s %-40s %-30s\n", id, nome, cidade, tecnico_nome);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -107,6 +102,7 @@ public class TimeDAO {
             scan.nextLine();
 
             String sql = null;
+
             switch (entrada) {
                 case 1:
                     System.out.print("Digite o novo nome do time: ");
@@ -116,6 +112,8 @@ public class TimeDAO {
                         ps.setString(1, novoNome);
                         ps.setInt(2, id);
                         executarAtualizacao(ps);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Nome inválido. Deve ter no máximo 50 caracteres.");
                     }
                     break;
                 case 2:

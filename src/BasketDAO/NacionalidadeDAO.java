@@ -45,12 +45,15 @@ public class NacionalidadeDAO {
         String sql = "SELECT id, nome FROM nacionalidade";
 
         try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
-            System.out.println("\nNacionalidades cadastradas:");
+            System.out.println("\nLista de Nacionalidades cadastradas:");
+            System.out.println("---------------------------------------------------------------------------------------------------------------");
+            System.out.printf("%-5s %-50s\n", "ID", "Nome");
+            System.out.println("---------------------------------------------------------------------------------------------------------------");
             while (rs.next()) {
                 int id = rs.getInt("id");
                 String nome = rs.getString("nome");
 
-                System.out.println("ID: " + id + " | Nome: " + nome);
+                System.out.printf("%-5d %-50s\n", id, nome);
             }
         } catch (SQLException e) {
             e.printStackTrace();

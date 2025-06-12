@@ -47,6 +47,17 @@ JOIN nacionalidade  ON jogador.nacionalidade_id = nacionalidade.id
 JOIN tecnico ON jogador.tecnico = tecnico.id;
 
 
+CREATE OR REPLACE VIEW vw_times AS 
+SELECT 
+	time.id AS time_id, 
+	time.nome AS time_nome, 
+	time.cidade AS time_cidade, 
+	tecnico.nome AS tecnico_nome 
+FROM 
+	time 
+JOIN tecnico ON time.tecnico_id = tecnico.id;
+
+
 SELECT * FROM vw_jogadores_detalhado;
 
 

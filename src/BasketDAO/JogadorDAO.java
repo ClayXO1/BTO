@@ -10,47 +10,107 @@ import java.util.Scanner;
 public class JogadorDAO {
 
     public static void cadastrarJogador(Connection conn, Scanner scan) {
-        try {
-            System.out.print("Digite o nome do jogador: ");
-            String nome = scan.nextLine();
+        String nome = null;
+        int idade = 0;
+        int timeId = 0;
+        int nacionalidadeId = 0;
+        int posicaoId = 0;
+        int tecnicoId = 0;
 
-            System.out.print("Digite a idade do jogador: ");
-            int idade = scan.nextInt();
-
-            System.out.println("Selecione o ID do time:");
-            listarOpcoes(conn, "time");
-            int timeId = scan.nextInt();
-
-            System.out.println("Selecione o ID da nacionalidade:");
-            listarOpcoes(conn, "nacionalidade");
-            int nacionalidadeId = scan.nextInt();
-
-            System.out.println("Selecione o ID da posição:");
-            listarOpcoes(conn, "posicao");
-            int posicaoId = scan.nextInt();
-
-            
-
-            String sql = "INSERT INTO jogador (nome, idade, time_id, nacionalidade_id, posicao_id, tecnico_id = time.tecnico_id) VALUES (?, ?, ?, ?, ?, ?)";
-
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, nome);
-                ps.setInt(2, idade);
-                ps.setInt(3, timeId);
-                ps.setInt(4, nacionalidadeId);
-                ps.setInt(5, posicaoId);
-
-                int rowsAffected = ps.executeUpdate();
-                if (rowsAffected > 0) {
-                    System.out.println("Jogador cadastrado com sucesso!");
-                } else {
-                    System.out.println("Erro ao cadastrar jogador.");
+        while(true) {
+            try {
+                System.out.print("Digite o nome do jogador (máximo 50 caracteres): ");
+                nome = scan.nextLine();
+                if (nome.length() > 50) {
+                    throw new IllegalArgumentException("O nome excede o limite de 50 caracteres.");
                 }
+                break; 
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+                scan.nextLine();
+            }
+        }
+
+        while (true) {
+            try {
+                System.out.print("Digite a idade do jogador: ");
+                idade = scan.nextInt();
+                if (idade <= 0) {
+                    throw new IllegalArgumentException("A idade deve ser um número positivo.");
+                }
+                break; 
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+                scan.nextLine();
+            }
+        }
+
+        while (true) { 
+            try {
+                System.out.println("Selecione o ID do time: ");
+                listarOpcoes(conn, "time");
+                timeId = scan.nextInt();
+                if (timeId <= 0) {
+                    throw new IllegalArgumentException("O ID do time deve ser um número positivo.");
+                }
+                break; 
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+                scan.nextLine(); 
+            }
+        }
+
+        while (true) { 
+            try {
+                System.out.println("Selecione o ID da nacionalidade: ");
+                listarOpcoes(conn, "nacionalidade");
+                nacionalidadeId = scan.nextInt();
+                if (nacionalidadeId <= 0) {
+                    throw new IllegalArgumentException("O ID da nacionalidade deve ser um número positivo.");
+                }
+                break; 
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+                scan.nextLine(); 
+            }
+        }
+
+        while (true) { 
+            try {
+                System.out.println("Selecione o ID da posição: ");
+                listarOpcoes(conn, "posicao");
+                posicaoId = scan.nextInt();
+                if (posicaoId <= 0) {
+                    throw new IllegalArgumentException("O ID da posição deve ser um número positivo.");
+                }
+                break; 
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+                scan.nextLine(); 
+            }
+        }
+
+        String sql = "INSERT INTO JOGADOR (nome, idade, time_id, nacionalidade_id, posicao_id, tecnico) VALUES (?, ?, ?, ?, ?, (SELECT tecnico_id FROM time WHERE id = ?))";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, nome); 
+            ps.setInt(2, idade);
+            ps.setInt(3, timeId);
+            ps.setInt(4, nacionalidadeId);
+            ps.setInt(5, posicaoId);
+            ps.setInt(6, timeId);
+
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Jogador cadastrado com sucesso!");
+            } else {
+                System.out.println("Erro ao cadastrar jogador.");
             }
         } catch (SQLException e) {
             System.out.println("Erro ao cadastrar jogador: " + e.getMessage());
         }
     }
+    
 
     public static void alterarJogador(Connection conn, Scanner scan) {
         try {
@@ -80,6 +140,8 @@ public class JogadorDAO {
                         ps.setString(1, novoNome);
                         ps.setInt(2, jogadorId);
                         executarAtualizacao(ps);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Nome inválido. Deve ter no máximo 50 caracteres.");
                     }
                     break;
 
@@ -91,6 +153,8 @@ public class JogadorDAO {
                         ps.setInt(1, novaIdade);
                         ps.setInt(2, jogadorId);
                         executarAtualizacao(ps);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Idade inválida. Deve ser um número positivo.");
                     }
                     break;
 
@@ -103,6 +167,8 @@ public class JogadorDAO {
                         ps.setInt(1, novoTimeId);
                         ps.setInt(2, jogadorId);
                         executarAtualizacao(ps);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("ID do time inválido. Deve ser um número positivo.");
                     }
                     break;
 
@@ -116,6 +182,8 @@ public class JogadorDAO {
                         ps.setInt(1, novaNacionalidadeId);
                         ps.setInt(2, jogadorId);
                         executarAtualizacao(ps);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("ID da nacionalidade inválido. Deve ser um número positivo.");
                     }
                     break;
 
@@ -129,6 +197,8 @@ public class JogadorDAO {
                         ps.setInt(1, novaPosicaoId);
                         ps.setInt(2, jogadorId);
                         executarAtualizacao(ps);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("ID da posição inválido. Deve ser um número positivo.");
                     }
                     break;
 
