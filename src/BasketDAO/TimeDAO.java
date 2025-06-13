@@ -124,6 +124,8 @@ public class TimeDAO {
                         ps.setString(1, novaCidade);
                         ps.setInt(2, id);
                         executarAtualizacao(ps);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Cidade inválida. Deve ter no máximo 50 caracteres.");
                     }
                     break;
                 case 3:
@@ -133,7 +135,10 @@ public class TimeDAO {
                     sql = "UPDATE time SET tecnico_id = ? WHERE id = ?";
                     try (PreparedStatement ps = conn.prepareStatement(sql)) {
                         ps.setInt(1, novoTecnicoId);
+                        ps.setInt(2, id);
                         executarAtualizacao(ps);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("ID do técnico inválido. Deve ser um número positivo.");
                     }
                     break;
                 case 4:
@@ -149,9 +154,9 @@ public class TimeDAO {
     private static void executarAtualizacao(PreparedStatement ps) throws SQLException {
         int rowsAffected = ps.executeUpdate();
         if (rowsAffected > 0) {
-            System.out.println("Informação do jogador atualizada com sucesso!");
+            System.out.println("Informação do time atualizada com sucesso!");
         } else {
-            System.out.println("Erro ao atualizar as informações do jogador.");
+            System.out.println("Erro ao atualizar as informações do time.");
         }
     }
 

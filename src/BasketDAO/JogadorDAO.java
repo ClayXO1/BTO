@@ -1,10 +1,12 @@
 package BasketDAO;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.Scanner;
 
 public class JogadorDAO {
@@ -15,7 +17,6 @@ public class JogadorDAO {
         int timeId = 0;
         int nacionalidadeId = 0;
         int posicaoId = 0;
-        int tecnicoId = 0;
 
         while(true) {
             try {
@@ -90,28 +91,27 @@ public class JogadorDAO {
             }
         }
 
-        String sql = "INSERT INTO JOGADOR (nome, idade, time_id, nacionalidade_id, posicao_id, tecnico) VALUES (?, ?, ?, ?, ?, (SELECT tecnico_id FROM time WHERE id = ?))";
+        String sql = "CALL inserir_jogador(?, ?, ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, nome); 
-            ps.setInt(2, idade);
-            ps.setInt(3, timeId);
-            ps.setInt(4, nacionalidadeId);
-            ps.setInt(5, posicaoId);
-            ps.setInt(6, timeId);
+        try (CallableStatement cs = conn.prepareCall(sql)) {
+            cs.setString(1, nome); 
+            cs.setInt(2, idade);
+            cs.setInt(3, timeId);
+            cs.setInt(4, nacionalidadeId);
+            cs.setInt(5, posicaoId);
+            cs.setInt(6, timeId);
 
-            int rowsAffected = ps.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Jogador cadastrado com sucesso!");
-            } else {
-                System.out.println("Erro ao cadastrar jogador.");
-            }
+            cs.registerOutParameter(7, Types.VARCHAR);
+
+            cs.executeUpdate();
+
+            String mensagem = cs.getString(7);
+            System.out.println(mensagem);
         } catch (SQLException e) {
             System.out.println("Erro ao cadastrar jogador: " + e.getMessage());
         }
     }
     
-
     public static void alterarJogador(Connection conn, Scanner scan) {
         try {
             mostrarJogadores(conn);
@@ -162,15 +162,16 @@ public class JogadorDAO {
                     System.out.println("Selecione o ID do novo time: ");
                     listarOpcoes(conn, "time");
                     int novoTimeId = scan.nextInt();
-                    sql = "UPDATE jogador SET time_id = ? WHERE id = ?";
+                    sql = "UPDATE jogador SET time_id = ?, tecnico = (SELECT tecnico_id FROM time WHERE id = ?) WHERE id = ?";
                     try (PreparedStatement ps = conn.prepareStatement(sql)) {
                         ps.setInt(1, novoTimeId);
-                        ps.setInt(2, jogadorId);
+                        ps.setInt(2, novoTimeId);
+                        ps.setInt(3, jogadorId);
                         executarAtualizacao(ps);
                     } catch (IllegalArgumentException e) {
                         System.out.println("ID do time inválido. Deve ser um número positivo.");
                     }
-                    break;
+                break;
 
                 case 4:
                     System.out.println("Selecione o ID da nova nacionalidade: ");
@@ -215,13 +216,13 @@ public class JogadorDAO {
     }
 
     public static void mostrarJogadores(Connection conn) {
-        String sql = "SELECT * FROM vw_jogadores_detalhado";
+        String sql = "SELECT * FROM vw_jogadores";
 
         try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
             System.out.println("\nLista de jogadores cadastrados:");
-            System.out.println("---------------------------------------------------------------------------------------------------------------");
-            System.out.printf("%-5s %-20s %-5s %-20s %-20s %-15s %-15s\n", "ID", "Nome", "Idade", "Time", "Posição", "Nacionalidade", "Técnico");
-            System.out.println("---------------------------------------------------------------------------------------------------------------");
+            System.out.println("---------------------------------------------------------------------------------------------------------------------------------");
+            System.out.printf("%-5s %-20s %-10s %-30s %-20s %-15s %-15s\n", "ID", "Nome", "Idade", "Time", "Posição", "Nacionalidade", "Técnico");
+            System.out.println("---------------------------------------------------------------------------------------------------------------------------------");
 
             while (rs.next()) {
                 int id = rs.getInt("jogador_id");
@@ -232,9 +233,9 @@ public class JogadorDAO {
                 String nacionalidade = rs.getString("nacionalidade");
                 String tecnico = rs.getString("tecnico_nome");
 
-                System.out.printf("%-5d %-20s %-5d %-20s %-20s %-15s %-15s\n", id, nome, idade, time, posicao, nacionalidade, tecnico);
+                System.out.printf("%-5d %-20s %-10d %-30s %-20s %-15s %-15s\n", id, nome, idade, time, posicao, nacionalidade, tecnico);
             }
-            System.out.println("---------------------------------------------------------------------------------------------------------------");
+            System.out.println("---------------------------------------------------------------------------------------------------------------------------------");
         } catch (SQLException e) {
             System.out.println("Erro ao exibir jogadores: " + e.getMessage());
         }

@@ -1,6 +1,7 @@
 
 import BasketDAO.JogadorDAO;
 import BasketDAO.NacionalidadeDAO;
+import BasketDAO.PartidaDAO;
 import BasketDAO.PosicaoDAO;
 import BasketDAO.TecnicoDAO;
 import BasketDAO.TimeDAO;
@@ -28,7 +29,8 @@ public class Main {
                 System.out.println("3. Gerenciar Times");
                 System.out.println("4. Gerenciar Posições");
                 System.out.println("5. Gerenciar Nacionalidades");
-                System.out.println("6. Sair");
+                System.out.println("6. Gerenciar Partidas");
+                System.out.println("7. Sair");
                 System.out.print("Escolha uma opção: ");
                 int entrada = scan.nextInt();
                 scan.nextLine();
@@ -50,6 +52,9 @@ public class Main {
                         menuNacionalidades(conn, scan);
                         break;
                     case 6:
+                        menuPartidas(conn, scan);
+                        break;
+                    case 7:
                         System.out.println("Encerrando o programa...");
                         return;
                     default:
@@ -206,4 +211,36 @@ public class Main {
         }
     }
 
+    private static void menuPartidas(Connection conn, Scanner scan) {
+        while (true) {
+            System.out.println("\n*** Gerenciamento de Partidas ***");
+            System.out.println("1. Cadastrar Partida");
+            System.out.println("2. Mostrar Partidas");
+            System.out.println("3. Alterar Partida");
+            System.out.println("4. Deletar Partida");
+            System.out.println("5. Voltar ao Menu Principal");
+            System.out.print("Escolha uma opção: ");
+            int entrada = scan.nextInt();
+            scan.nextLine();
+
+            switch (entrada) {
+                case 1:
+                    PartidaDAO.cadastrarPartida(conn, scan);
+                    break;
+                case 2:
+                    PartidaDAO.mostrarPartidas(conn);
+                    break;
+                case 3:
+                    PartidaDAO.alterarPartida(conn, scan); 
+                    break;
+                case 4:
+                    PartidaDAO.deletarPartida(conn, scan);
+                    return;
+                case 5:
+                    return;
+                default:
+                    System.out.println("Opção inválida.");
+            }
+        }
+    }
 }
