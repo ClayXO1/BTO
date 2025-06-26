@@ -47,8 +47,9 @@ public class TimeDAO {
             ps.setString(2, cidade);
             ps.setInt(3, tecnicoId);
 
-            System.out.println("Selecione o ID do técnico:");
             listarOpcoes(conn, "tecnico");
+            System.out.println("Selecione o ID do técnico:");
+
             int novoTecnicoId = scan.nextInt();
             ps.setInt(3, novoTecnicoId);
 
@@ -68,7 +69,7 @@ public class TimeDAO {
         String sql = "SELECT * FROM vw_times";
 
         try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
-           
+
             System.out.println("\nLista de Times cadastrados:");
             System.out.println("---------------------------------------------------------------------------------------------------------------");
             System.out.printf("%-5s %-40s %-40s %-30s\n", "ID", "Nome", "Cidade", "Técnico");
@@ -148,6 +149,30 @@ public class TimeDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void deletarTime(Connection conn, Scanner scan) {
+        try {
+            mostrarTimes(conn);
+            System.out.print("Digite o ID do time a ser deletado: ");
+            int id = scan.nextInt();
+            scan.nextLine();
+
+            String sql = "DELETE FROM time WHERE id = ?";
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, id);
+                int rowsAffected = ps.executeUpdate();
+                if (rowsAffected > 0) {
+                    System.out.println("Time deletado com sucesso!");
+                } else {
+                    System.out.println("Erro ao deletar o time. Verifique se o ID está correto.");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            System.out.println("ID inválido. Deve ser um número positivo.");
         }
     }
 

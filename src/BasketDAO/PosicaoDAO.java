@@ -41,7 +41,6 @@ public class PosicaoDAO {
         }
     }
 
-
     public static void mostrarPosicoes(Connection conn) {
         String sql = "SELECT id, nome FROM posicao";
 

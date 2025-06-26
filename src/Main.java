@@ -35,7 +35,7 @@ public class Main {
                 int entrada = scan.nextInt();
                 scan.nextLine();
 
-                switch (entrada) {
+                switch (entrada){
                     case 1:
                         menuJogadores(conn, scan);
                         break;
@@ -71,7 +71,7 @@ public class Main {
             System.out.println("\n*** Gerenciamento de Jogadores ***");
             System.out.println("1. Cadastrar Jogador");
             System.out.println("2. Mostrar Jogadores");
-            System.out.println("3. Alterar informações dos jogadores");
+            System.out.println("3. Alterar Jogador");
             System.out.println("4. Deletar Jogador");
             System.out.println("5. Voltar ao Menu Principal");
             System.out.print("Escolha uma opção: ");
@@ -130,7 +130,8 @@ public class Main {
             System.out.println("1. Cadastrar Time");
             System.out.println("2. Mostrar Times");
             System.out.println("3. Alterar Time");
-            System.out.println("4. Voltar ao Menu Principal");
+            System.out.println("4. Deletar Time");
+            System.out.println("5. Voltar ao Menu Principal");
             System.out.print("Escolha uma opção: ");
             int entrada = scan.nextInt();
             scan.nextLine();
@@ -146,6 +147,8 @@ public class Main {
                     TimeDAO.alterarTime(conn, scan);
                     break;
                     case 4:
+                        TimeDAO.deletarTime(conn, scan);
+                    case 5:
                     return;
                 default:
                     System.out.println("Opção inválida.");
@@ -156,21 +159,17 @@ public class Main {
     private static void menuPosicoes(Connection conn, Scanner scan) {
         while (true) {
             System.out.println("\n*** Gerenciamento de Posições ***");
-            System.out.println("1. Cadastrar Posição");
-            System.out.println("2. Mostrar Posições");
-            System.out.println("3. Voltar ao Menu Principal");
+            System.out.println("1.  Mostrar Posições");
+            System.out.println("2. Voltar ao Menu Principal");
             System.out.print("Escolha uma opção: ");
             int entrada = scan.nextInt();
             scan.nextLine();
 
             switch (entrada) {
                 case 1:
-                    PosicaoDAO.cadastrarPosicao(conn, scan);
-                    break;
-                case 2:
                     PosicaoDAO.mostrarPosicoes(conn);
                     break;
-                case 3:
+                case 2:
                     return;
                 default:
                     System.out.println("Opção inválida.");
@@ -183,7 +182,7 @@ public class Main {
             System.out.println("\n*** Gerenciamento de Técnicos ***");
             System.out.println("1. Cadastrar Técnico");
             System.out.println("2. Mostrar Técnicos");
-            System.out.println("3. Alterar informações dos técnicos");
+            System.out.println("3. Alterar Técnico");
             System.out.println("4. Deletar Técnico");
             System.out.println("5. Voltar ao Menu Principal");
             System.out.print("Escolha uma opção: ");

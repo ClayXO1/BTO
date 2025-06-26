@@ -7,25 +7,27 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.time.LocalDate;
 import java.util.Scanner;
 
 public class JogadorDAO {
 
     public static void cadastrarJogador(Connection conn, Scanner scan) {
+
         String nome = null;
-        int idade = 0;
+        LocalDate dataNacimento = null;
         int timeId = 0;
         int nacionalidadeId = 0;
         int posicaoId = 0;
 
-        while(true) {
+        while (true) {
             try {
                 System.out.print("Digite o nome do jogador (máximo 50 caracteres): ");
                 nome = scan.nextLine();
                 if (nome.length() > 50) {
                     throw new IllegalArgumentException("O nome excede o limite de 50 caracteres.");
                 }
-                break; 
+                break;
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
                 scan.nextLine();
@@ -34,68 +36,70 @@ public class JogadorDAO {
 
         while (true) {
             try {
-                System.out.print("Digite a idade do jogador: ");
-                idade = scan.nextInt();
-                if (idade <= 0) {
-                    throw new IllegalArgumentException("A idade deve ser um número positivo.");
+                System.out.print("Digite a data de nascimento do jogador (formato: AAAA-MM-DD): ");
+                dataNacimento = LocalDate.parse(scan.nextLine());
+                if (dataNacimento.isAfter(LocalDate.now())) {
+                    throw new IllegalArgumentException("A data de nascimento não pode ser uma data futura.");
                 }
-                break; 
+                break;
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
                 scan.nextLine();
             }
         }
 
-        while (true) { 
+        while (true) {
             try {
-                System.out.println("Selecione o ID do time: ");
                 listarOpcoes(conn, "time");
+                System.out.println("Selecione o ID do time: ");
+                
                 timeId = scan.nextInt();
                 if (timeId <= 0) {
                     throw new IllegalArgumentException("O ID do time deve ser um número positivo.");
                 }
-                break; 
+                break;
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
-                scan.nextLine(); 
+                scan.nextLine();
             }
         }
 
-        while (true) { 
+        while (true) {
             try {
-                System.out.println("Selecione o ID da nacionalidade: ");
                 listarOpcoes(conn, "nacionalidade");
+                System.out.println("Selecione o ID da nacionalidade: ");
+                
                 nacionalidadeId = scan.nextInt();
                 if (nacionalidadeId <= 0) {
                     throw new IllegalArgumentException("O ID da nacionalidade deve ser um número positivo.");
                 }
-                break; 
+                break;
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
-                scan.nextLine(); 
+                scan.nextLine();
             }
         }
 
-        while (true) { 
+        while (true) {
             try {
-                System.out.println("Selecione o ID da posição: ");
                 listarOpcoes(conn, "posicao");
+                System.out.println("Selecione o ID da posição: ");
                 posicaoId = scan.nextInt();
                 if (posicaoId <= 0) {
                     throw new IllegalArgumentException("O ID da posição deve ser um número positivo.");
                 }
-                break; 
+                break;
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
-                scan.nextLine(); 
+                scan.nextLine();
             }
         }
 
         String sql = "CALL inserir_jogador(?, ?, ?, ?, ?, ?, ?)";
 
         try (CallableStatement cs = conn.prepareCall(sql)) {
-            cs.setString(1, nome); 
-            cs.setInt(2, idade);
+            cs.setString(1, nome);
+            cs.setDate(2, java.sql.Date.valueOf(dataNacimento));
             cs.setInt(3, timeId);
             cs.setInt(4, nacionalidadeId);
             cs.setInt(5, posicaoId);
@@ -111,8 +115,8 @@ public class JogadorDAO {
             System.out.println("Erro ao cadastrar jogador: " + e.getMessage());
         }
     }
-    
-    public static void alterarJogador(Connection conn, Scanner scan) {
+
+    public static void  alterarJogador(Connection conn, Scanner scan) {
         try {
             mostrarJogadores(conn);
             System.out.println("Digite o ID do jogador que deseja alterar:");
@@ -146,15 +150,19 @@ public class JogadorDAO {
                     break;
 
                 case 2:
-                    System.out.print("Digite a nova idade: ");
-                    int novaIdade = scan.nextInt();
-                    sql = "UPDATE jogador SET idade = ? WHERE id = ?";
-                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                        ps.setInt(1, novaIdade);
-                        ps.setInt(2, jogadorId);
-                        executarAtualizacao(ps);
-                    } catch (IllegalArgumentException e) {
-                        System.out.println("Idade inválida. Deve ser um número positivo.");
+                    System.out.print("Digite a data de Nascimento: ");
+                    LocalDate novaDataNascimento = LocalDate.parse(scan.nextLine());
+                    if (novaDataNascimento.isAfter(LocalDate.now())) {
+                        throw new IllegalArgumentException("A data de nascimento não pode ser uma data futura.");
+                    } else {
+                        sql = "UPDATE jogador SET data_nascimento = ? WHERE id = ?";
+                        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                            ps.setDate(1, java.sql.Date.valueOf(novaDataNascimento));
+                            ps.setInt(2, jogadorId);
+                            executarAtualizacao(ps);
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Data de Nascimento inválida.");
+                        }
                     }
                     break;
 
@@ -162,7 +170,7 @@ public class JogadorDAO {
                     System.out.println("Selecione o ID do novo time: ");
                     listarOpcoes(conn, "time");
                     int novoTimeId = scan.nextInt();
-                    sql = "UPDATE jogador SET time_id = ?, tecnico = (SELECT tecnico_id FROM time WHERE id = ?) WHERE id = ?";
+                    sql = "UPDATE jogador SET time_id = ?, tecnico = (SELECT time.tecnico_id FROM time WHERE id = ?) WHERE id = ?";
                     try (PreparedStatement ps = conn.prepareStatement(sql)) {
                         ps.setInt(1, novoTimeId);
                         ps.setInt(2, novoTimeId);
@@ -171,7 +179,7 @@ public class JogadorDAO {
                     } catch (IllegalArgumentException e) {
                         System.out.println("ID do time inválido. Deve ser um número positivo.");
                     }
-                break;
+                    break;
 
                 case 4:
                     System.out.println("Selecione o ID da nova nacionalidade: ");
@@ -220,22 +228,22 @@ public class JogadorDAO {
 
         try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
             System.out.println("\nLista de jogadores cadastrados:");
-            System.out.println("---------------------------------------------------------------------------------------------------------------------------------");
-            System.out.printf("%-5s %-20s %-10s %-30s %-20s %-15s %-15s\n", "ID", "Nome", "Idade", "Time", "Posição", "Nacionalidade", "Técnico");
-            System.out.println("---------------------------------------------------------------------------------------------------------------------------------");
+            System.out.println("-------------------------------------------------------------------------------------------------------------------------------------------");
+            System.out.printf("%-5s %-20s %-10s %-30s %-20s %-30s %-15s\n", "ID", "Nome", "Idade", "Time", "Posição", "Nacionalidade", "Técnico");
+            System.out.println("-------------------------------------------------------------------------------------------------------------------------------------------");
 
             while (rs.next()) {
                 int id = rs.getInt("jogador_id");
                 String nome = rs.getString("jogador_nome");
-                int idade = rs.getInt("idade");
+                int idade = rs.getInt("idade_jogador");
                 String time = rs.getString("time_nome");
-                String posicao = rs.getString("posicao_nome");
+                String posicao = rs.getString("posicao");
                 String nacionalidade = rs.getString("nacionalidade");
                 String tecnico = rs.getString("tecnico_nome");
 
-                System.out.printf("%-5d %-20s %-10d %-30s %-20s %-15s %-15s\n", id, nome, idade, time, posicao, nacionalidade, tecnico);
+                System.out.printf("%-5d %-20s %-10d %-30s %-20s %-30s %-15s\n", id, nome, idade, time, posicao, nacionalidade, tecnico);
             }
-            System.out.println("---------------------------------------------------------------------------------------------------------------------------------");
+            System.out.println("-------------------------------------------------------------------------------------------------------------------------------------------");
         } catch (SQLException e) {
             System.out.println("Erro ao exibir jogadores: " + e.getMessage());
         }
@@ -246,8 +254,6 @@ public class JogadorDAO {
         System.out.print("Digite o ID do jogador que deseja deletar: ");
         int id = scan.nextInt();
         scan.nextLine();
-
-        String sql = "DELETE FROM jogador WHERE id = ?";
 
         if (id <= 0) {
             System.out.println("ID inválido. Por favor, insira um ID válido.");
@@ -265,6 +271,8 @@ public class JogadorDAO {
             System.out.println("Opção inválida. Por favor, responda com 's' para sim ou 'n' para não.");
             return;
         }
+        
+        String sql = "DELETE FROM jogador WHERE id = ?";
 
         switch (confirmacao.toLowerCase()) {
             case "s":

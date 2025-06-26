@@ -3,6 +3,12 @@ CREATE TABLE posicao (
     nome VARCHAR(50) NOT NULL
 );
 
+INSERT INTO posicao (nome) VALUES ('Ala');
+INSERT INTO posicao (nome) VALUES ('Armador');
+INSERT INTO posicao (nome) VALUES ('Ala-Armador');
+INSERT INTO posicao (nome) VALUES ('Pivô');
+INSERT INTO posicao (nome) VALUES ('Ala-Pivô');
+
 CREATE TABLE nacionalidade (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(50) NOT NULL
@@ -13,6 +19,9 @@ CREATE TABLE tecnico (
     nome VARCHAR(50) NOT NULL
 );
 
+INSERT INTO tecnico (nome) VALUES ('Não definido');
+
+
 CREATE TABLE time(
     id SERIAL PRIMARY KEY,
     nome VARCHAR(50) NOT NULL,
@@ -20,10 +29,13 @@ CREATE TABLE time(
 	tecnico_id INT REFERENCES tecnico(id) ON DELETE SET NULL
 );
 
+INSERT INTO posicao (nome,cidade,tecnico) VALUES 
+('Não definido','Não definido',(SELECT id FROM tecnico WHERE = 1));
+
 CREATE TABLE jogador (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(50) NOT NULL,
-    idade INT NOT NULL CHECK (idade > 0),
+    data_nascimento DATE,
     time_id INT REFERENCES time(id) ON DELETE SET NULL,
     nacionalidade_id INT REFERENCES nacionalidade(id) ON DELETE SET NULL,
     posicao_id INT REFERENCES posicao(id) ON DELETE SET NULL,
@@ -39,9 +51,17 @@ CREATE TABLE partida(
 	partida_local INT REFERENCES time(id) ON DELETE SET NULL
 );
 
+CREATE OR REPLACE FUNCTION calcular_idade(data_nascimento DATE)
+RETURNS INT AS
+$$
+BEGIN
+    RETURN DATE_PART('year', AGE(data_nascimento));
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE PROCEDURE inserir_jogador(
     IN nome VARCHAR(50),
-    IN idade INT,
+    IN data_nascimento DATE,
     IN time_id INT,
     IN nacionalidade_id INT,
     IN posicao_id INT,
@@ -51,17 +71,17 @@ CREATE OR REPLACE PROCEDURE inserir_jogador(
 LANGUAGE plpgsql
 AS $$
 DECLARE
-    tecnico_fk INT;
+	tecnico_fk INT;
 BEGIN
     SELECT tecnico_id INTO tecnico_fk FROM time WHERE id = tecnico;
-
+	
     IF tecnico_fk IS NULL THEN
         resultado := 'Erro: Técnico não encontrado.';
         RETURN;
     END IF;
 
-    INSERT INTO jogador (nome, idade, time_id, nacionalidade_id, posicao_id, tecnico)
-    VALUES (nome, idade, time_id, nacionalidade_id, posicao_id, tecnico_fk);
+    INSERT INTO jogador (nome, data_nascimento, time_id, nacionalidade_id, posicao_id, tecnico)
+    VALUES (nome, data_nascimento, time_id, nacionalidade_id, posicao_id, tecnico_fk);
 
     resultado := 'Jogador inserido com sucesso!';
 END;
@@ -81,10 +101,6 @@ DECLARE
 	partida_local_fk INT;
 BEGIN
 	SELECT partida_local INTO partida_local_fk FROM time WHERE id = partida_local;
-
-	IF partida_local_fk IS NULL THEN
-		resultado := 'Error: local não encontrado';
-	END IF;
 
 	INSERT INTO partida (time_casa, time_visitante, partida_data, partida_hora, partida_local)
 	VALUES (time_casa, time_visitante, partida_data, partida_hora, partida_local_fk);
@@ -107,9 +123,9 @@ CREATE OR REPLACE VIEW vw_jogadores AS
 SELECT 
     j.id AS jogador_id,
     j.nome AS jogador_nome,
-    j.idade,
+    calcular_idade(data_nascimento) AS idade_jogador,
     time.nome AS time_nome,
-    posicao.nome AS posicao_nome,
+    posicao.nome AS posicao,
     nacionalidade.nome AS nacionalidade,
     tecnico.nome AS tecnico_nome
 FROM 
@@ -129,15 +145,23 @@ SELECT
     tl.cidade AS partida_local
 FROM
     partida p
-LEFT JOIN time tc ON p.time_casa = tc.id
-LEFT JOIN time tv ON p.time_visitante = tv.id
-LEFT JOIN time tl ON p.partida_local = tl.id;
-	
+JOIN time tc ON p.time_casa = tc.id
+JOIN time tv ON p.time_visitante = tv.id
+JOIN time tl ON p.partida_local = tl.id;
 
 SELECT * FROM vw_jogadores;
 
 SELECT * FROM vw_times;
 
 SELECT * FROM vw_partidas;
+
+Select * From jogador;
+select * from posicao;
+select * from tecnico;
+select * from nacionalidade;
+select * from time;
+select * from partida;
+
+
 
 

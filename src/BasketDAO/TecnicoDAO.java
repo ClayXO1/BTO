@@ -61,6 +61,18 @@ public class TecnicoDAO {
                         throw new IllegalArgumentException("O nome excede o limite de 50 caracteres.");
                     }
                     sql = "UPDATE tecnico SET nome = ? WHERE id = ?";
+                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                        ps.setString(1, nome);
+                        ps.setInt(2, id);
+                        int rowsAffected = ps.executeUpdate();
+                        if (rowsAffected > 0) {
+                            System.out.println("Técnico alterado com sucesso!");
+                        } else {
+                            System.out.println("Erro ao alterar técnico.");
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case 2:
                     return;

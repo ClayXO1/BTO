@@ -19,7 +19,6 @@ public class PartidaDAO {
         int timeVisitanteId = 0;
         LocalDate data = null;
         LocalTime hora = null;
-        String local = null;
         
 
         while (true) {
@@ -54,27 +53,30 @@ public class PartidaDAO {
             }
         }
 
-        while (true) {
-            try {
-                System.out.print("Digite a data da partida (formato YYYY-MM-DD): ");
-                data = LocalDate.parse(scan.nextLine());
-                break; 
-            } catch (IllegalArgumentException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-
         while(true) {
             try {
                 System.out.print("Digite a hora da partida (formato HH:MM): ");
                 hora = LocalTime.parse(scan.nextLine());
-                break; 
+                break;
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
+                scan.nextLine();
             }
         }
 
-        String sql = "CALL marcar_partida(?, ?, ?, ?, ?, ?)";
+        while (true) {
+            try {
+                System.out.print("Digite a data da partida (formato YYYY-MM-DD): ");
+                data = LocalDate.parse(scan.nextLine());
+                break;
+            }
+            catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+                scan.nextLine();
+            }
+        }
+
+        String sql = "CALL public.marcar_partida(?, ?, ?, ?, ?, ?)";
         try (CallableStatement cs = conn.prepareCall(sql)) {
             cs.setInt(1, timeCasaId);
             cs.setInt(2, timeVisitanteId);
@@ -113,11 +115,13 @@ public class PartidaDAO {
 
             switch (entrada) {
                 case 1:
+                    listarOpcoes(conn, "time");
                     System.out.print("Digite o novo ID do time da casa: ");
                     int novoTimeCasaId = scan.nextInt();
                     scan.nextLine();
-                    sql = "UPDATE partida SET time_casa_id = ?, partida_local = (SELECT partida_local FROM partida WHERE id = ?) WHERE id = ?";
-                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    sql = "UPDATE partida SET time_casa = ?, partida_local = (SELECT partida_local FROM partida WHERE id = ?) WHERE id = ?";
+
+                    try (PreparedStatement ps = conn.prepareStatement(sql); ) {
                         ps.setInt(1, novoTimeCasaId);
                         ps.setInt(2,novoTimeCasaId);
                         ps.setInt(3, partidaId);
@@ -127,14 +131,16 @@ public class PartidaDAO {
                     }
                     break;
                 case 2:
+                    listarOpcoes(conn, "time");
                     System.out.print("Digite o novo ID do time visitante: ");
                     int novoTimeVisitanteId = scan.nextInt();
                     scan.nextLine();
-                    sql = "UPDATE partida SET time_visitante_id = ? WHERE id = ?";
-                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    sql = "UPDATE partida SET time_visitante = ? WHERE id = ?";
+                    try (PreparedStatement ps = conn.prepareStatement(sql);) {
                         ps.setInt(1, novoTimeVisitanteId);
                         ps.setInt(2, partidaId);
                         executarAtualizacao(ps);
+                        
                     } catch (SQLException e) {
                         System.out.println("Erro ao atualizar o time visitante: " + e.getMessage());
                     }
@@ -142,7 +148,7 @@ public class PartidaDAO {
                 case 3:
                     System.out.print("Digite a nova data da partida (formato YYYY-MM-DD): ");
                     LocalDate novaData = LocalDate.parse(scan.nextLine());
-                    sql = "UPDATE partida SET data = ? WHERE id = ?";
+                    sql = "UPDATE partida SET partida_data = ? WHERE id = ?";
                     try (PreparedStatement ps = conn.prepareStatement(sql)) {
                         ps.setDate(1, java.sql.Date.valueOf(novaData));
                         ps.setInt(2, partidaId);
@@ -152,9 +158,9 @@ public class PartidaDAO {
                     }
                     break;
                 case 4:
-                    System.out.print("Digite a nova hora da partida (formato HH:MM): ");
+                    System.out.print("Digite o novo horário da partida (formato HH:MM): ");
                     LocalTime novaHora = LocalTime.parse(scan.nextLine());
-                    sql = "UPDATE partida SET hora = ? WHERE id = ?";
+                    sql = "UPDATE partida SET partida_hora = ? WHERE id = ?";
                     try (PreparedStatement ps = conn.prepareStatement(sql)) {
                         ps.setTime(1, java.sql.Time.valueOf(novaHora));
                         ps.setInt(2, partidaId);
@@ -197,7 +203,7 @@ public class PartidaDAO {
     }
 
     public static void mostrarPartidas(Connection conn) {
-        String sql = "SELECT * FROM vw_partidas";
+        String sql = "call public.";
 
         try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
             System.out.println("\nLista de partidas cadastradas:");
